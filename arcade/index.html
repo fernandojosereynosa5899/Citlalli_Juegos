@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#060B1A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>CITLALLI · Sala Arcade — El Aroma de los Dioses</title>
+  <link rel="stylesheet" href="css/arcade.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ===== Barra superior ===== -->
+    <header id="topbar">
+      <div class="row">
+        <button id="btnHome" class="ibtn" type="button" aria-label="Volver a la sala" title="Sala">🏠</button>
+        <div id="playerChip" title="Nombre bloqueado para juego limpio">
+          <img id="chipAvatar" alt="" hidden>
+          <span id="chipName">--------</span>
+          <span class="lock" aria-hidden="true">🔒</span>
+        </div>
+        <div id="gameTitle">SALA ARCADE</div>
+        <span id="netBadge" role="status">💾</span>
+        <button id="btnTop" class="ibtn" type="button" aria-label="Tabla de líderes" title="Top 10">🏆</button>
+        <button id="btnMute" class="ibtn" type="button" aria-label="Silenciar" title="Silenciar (M)">🔊</button>
+      </div>
+      <div class="row opts">
+        <div class="seg" id="diffSeg" role="group" aria-label="Dificultad"></div>
+        <div class="seg" id="scenSeg" role="group" aria-label="Escenario"></div>
+      </div>
+    </header>
+
+    <!-- ===== Escenario de juego ===== -->
+    <main id="stage">
+      <canvas id="game" aria-label="Área de juego"></canvas>
+
+      <section id="lobby" hidden>
+        <img id="lobbyMarquee" alt="CITLALLI Arcade" draggable="false">
+        <p class="tagline">EL AROMA DE LOS DIOSES</p>
+        <div id="lobbyGrid"></div>
+        <p class="hint">Elige un juego · Flechas/WASD · Espacio · Toque · <b>M</b> = sonido</p>
+      </section>
+
+      <nav id="dpad" hidden aria-label="Controles direccionales">
+        <button type="button" data-dir="up" aria-label="Arriba">▲</button>
+        <button type="button" data-dir="left" aria-label="Izquierda">◀</button>
+        <button type="button" data-dir="right" aria-label="Derecha">▶</button>
+        <button type="button" data-dir="down" aria-label="Abajo">▼</button>
+      </nav>
+
+      <div id="loading">
+        <p>✦ CITLALLI ✦<br><small>Preparando la sala…</small></p>
+        <div class="bar"><div id="loadBar"></div></div>
+      </div>
+      <noscript><p style="color:#fff;padding:2rem">Esta sala arcade requiere JavaScript.</p></noscript>
+    </main>
+  </div>
+
+  <!-- ===== Registro de jugador oficial ===== -->
+  <div id="welcome" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <form id="welcomeForm" class="modal-card" autocomplete="off">
+      <h1 id="welcomeTitle">✦ CITLALLI ARCADE ✦</h1>
+      <p class="sub">Registro de Jugador Oficial</p>
+
+      <label for="nameInput" class="lbl">Tu nombre <small>(máx. 8 · A-Z y 0-9)</small></label>
+      <div class="name-wrap">
+        <input id="nameInput" name="username" type="text" maxlength="8" inputmode="text"
+               autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false"
+               placeholder="NOMBRE" required>
+        <span id="nameCount">0/8</span>
+      </div>
+
+      <span class="lbl">Elige tu avatar</span>
+      <div id="avatarGrid" role="radiogroup" aria-label="Avatar"></div>
+
+      <p class="warn">🔒 El nombre quedará bloqueado para garantizar juego limpio en la tabla de líderes.</p>
+      <button id="btnEnter" type="submit" class="cta" disabled>¡ENTRAR A LA SALA!</button>
+    </form>
+  </div>
+
+  <!-- ===== Tabla de líderes ===== -->
+  <div id="topModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="topTitle">
+    <div class="modal-card top-card">
+      <div class="top-head">
+        <img id="trophyImg" alt="" draggable="false">
+        <h2 id="topTitle">TOP 10 · SALÓN DE LA FAMA</h2>
+        <button id="btnCloseTop" type="button" class="ibtn" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="topTabs" class="tabs"></div>
+      <ol id="topList"></ol>
+      <p id="topNet" class="net-note"></p>
+    </div>
+  </div>
+
+  <!-- Orden de carga: cada script es independiente y no depende de CDNs -->
+  <script src="js/config.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/games/snake.js"></script>
+  <script src="js/games/flappy.js"></script>
+  <script src="js/games/memorama.js"></script>
+  <script src="js/games/reflejos.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+{
+  "project": "CITLALLI - El Aroma de los Dioses",
+  "brandAssets": [
+    "/assets/brand/bottle.png",
+    "/assets/brand/box.png",
+    "/assets/brand/logo.png",
+    "/assets/brand/moodboard.png",
+    "/assets/brand/notes_velvet_1.png",
+    "/assets/brand/label_back.png",
+    "/assets/brand/notes_velvet_2.png",
+    "/assets/brand/instructions_card.png",
+    "/assets/brand/ad_poster_luxury.jpeg",
+    "/assets/brand/ad_poster_jaguar.png",
+    "/assets/brand/ad_promo.gif",
+    "/assets/brand/storytelling_david.jpeg",
+    "/assets/brand/emblem_cosmic.png"
+  ],
+  "pixelArtSprites": {
+    "bottle_citlalli": {
+      "png": "/assets/pixel-art/sprites/bottle_citlalli.png",
+      "svg": "/assets/pixel-art/sprites/bottle_citlalli.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 0,
+      "sheetY": 0
+    },
+    "bottle_winged": {
+      "png": "/assets/pixel-art/sprites/bottle_winged.png",
+      "svg": "/assets/pixel-art/sprites/bottle_winged.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 64,
+      "sheetY": 0
+    },
+    "charm_qm": {
+      "png": "/assets/pixel-art/sprites/charm_qm.png",
+      "svg": "/assets/pixel-art/sprites/charm_qm.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 128,
+      "sheetY": 0
+    },
+    "jaguar_gold": {
+      "png": "/assets/pixel-art/sprites/jaguar_gold.png",
+      "svg": "/assets/pixel-art/sprites/jaguar_gold.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 192,
+      "sheetY": 0
+    },
+    "star_citlalli": {
+      "png": "/assets/pixel-art/sprites/star_citlalli.png",
+      "svg": "/assets/pixel-art/sprites/star_citlalli.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 256,
+      "sheetY": 0
+    },
+    "mandarin": {
+      "png": "/assets/pixel-art/sprites/mandarin.png",
+      "svg": "/assets/pixel-art/sprites/mandarin.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 0,
+      "sheetY": 64
+    },
+    "rose_pink": {
+      "png": "/assets/pixel-art/sprites/rose_pink.png",
+      "svg": "/assets/pixel-art/sprites/rose_pink.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 64,
+      "sheetY": 64
+    },
+    "jasmine_white": {
+      "png": "/assets/pixel-art/sprites/jasmine_white.png",
+      "svg": "/assets/pixel-art/sprites/jasmine_white.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 128,
+      "sheetY": 64
+    },
+    "vanilla_pod": {
+      "png": "/assets/pixel-art/sprites/vanilla_pod.png",
+      "svg": "/assets/pixel-art/sprites/vanilla_pod.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 192,
+      "sheetY": 64
+    },
+    "amber_crystal": {
+      "png": "/assets/pixel-art/sprites/amber_crystal.png",
+      "svg": "/assets/pixel-art/sprites/amber_crystal.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 256,
+      "sheetY": 64
+    },
+    "clay_vessel": {
+      "png": "/assets/pixel-art/sprites/clay_vessel.png",
+      "svg": "/assets/pixel-art/sprites/clay_vessel.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 0,
+      "sheetY": 128
+    },
+    "snake_head_gold": {
+      "png": "/assets/pixel-art/sprites/snake_head_gold.png",
+      "svg": "/assets/pixel-art/sprites/snake_head_gold.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 64,
+      "sheetY": 128
+    },
+    "snake_head_rosegold": {
+      "png": "/assets/pixel-art/sprites/snake_head_rosegold.png",
+      "svg": "/assets/pixel-art/sprites/snake_head_rosegold.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 128,
+      "sheetY": 128
+    },
+    "smoke_hazard": {
+      "png": "/assets/pixel-art/sprites/smoke_hazard.png",
+      "svg": "/assets/pixel-art/sprites/smoke_hazard.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 192,
+      "sheetY": 128
+    },
+    "card_back_velvet": {
+      "png": "/assets/pixel-art/sprites/card_back_velvet.png",
+      "svg": "/assets/pixel-art/sprites/card_back_velvet.svg",
+      "width": 64,
+      "height": 64,
+      "sheetX": 256,
+      "sheetY": 128
+    },
+    "spritesheet_citlalli": {
+      "png": "/assets/pixel-art/sprites/spritesheet_citlalli.png",
+      "svg": "/assets/pixel-art/sprites/spritesheet_citlalli.svg",
+      "width": 320,
+      "height": 192
+    }
+  },
+  "pixelArtScenarios": {
+    "hidalgo": {
+      "png": "/assets/pixel-art/scenarios/scenario_hidalgo.png",
+      "width": 640,
+      "height": 360
+    },
+    "jaguar": {
+      "png": "/assets/pixel-art/scenarios/scenario_jaguar.png",
+      "width": 640,
+      "height": 360
+    },
+    "velvet": {
+      "png": "/assets/pixel-art/scenarios/scenario_velvet.png",
+      "width": 640,
+      "height": 360
+    },
+    "penthouse": {
+      "png": "/assets/pixel-art/scenarios/scenario_penthouse.png",
+      "width": 640,
+      "height": 360
+    }
+  }
+}
