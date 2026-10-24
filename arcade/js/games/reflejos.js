@@ -54,18 +54,28 @@
       this.particles.clear();
     }
 
-    enter() { this.reset(); }
+    enter() { this.reset(); A.audio.playMusic(A.store.prefs.scenario); }
     onResize() { this.reset(); }
     onSettingsChange(kind) { if (kind === 'difficulty') this.reset(); }
-    restart() { this.reset(); this.state = 'playing'; A.audio.play('tick'); }
+    restart() { this.reset(); this.state = 'playing'; A.audio.unlock(); A.audio.playMusic(A.store.prefs.scenario); A.audio.play('tick'); }
 
     get avg() { return this.times.length ? Math.round(this.times.reduce((a, b) => a + b, 0) / this.times.length) : null; }
 
     /* ------------------------------------------------------------- entrada */
-    onKeyDown(e) { if (this.state === 'ready' && (e.key === 'Enter' || e.key === ' ')) this.state = 'playing'; }
+    onKeyDown(e) {
+      if (this.state === 'ready' && (e.key === 'Enter' || e.key === ' ')) {
+        this.state = 'playing';
+        A.audio.playMusic(A.store.prefs.scenario);
+      }
+    }
 
     onPointerDown(p) {
-      if (this.state === 'ready') { this.state = 'playing'; A.audio.play('tick'); return; }
+      if (this.state === 'ready') {
+        this.state = 'playing';
+        A.audio.playMusic(A.store.prefs.scenario);
+        A.audio.play('tick');
+        return;
+      }
       if (this.state !== 'playing') return;
       for (let i = this.items.length - 1; i >= 0; i--) { // el más reciente primero
         const it = this.items[i];
@@ -93,7 +103,7 @@
       const cols = ESSENCE_COLORS[it.sprite];
       this.particles.emit(it.x, it.y, { count: 22, speed: 240, life: 0.7, size: 6, colors: cols.concat('#ffffff'), round: true });
       this.particles.text(it.x, it.y - it.r, '+' + pts, '#FFE9A8', 22);
-      if (ms < LIGHTNING_MS) { this.flashT = 1.3; A.audio.play('power'); } else A.audio.play(this.streak % 5 === 0 ? 'point' : 'hit');
+      if (ms < LIGHTNING_MS) { this.flashT = 1.3; A.audio.play('reflex_hit'); } else A.audio.play(this.streak % 5 === 0 ? 'spray' : 'point');
     }
 
     hitHazard(it, idx) {

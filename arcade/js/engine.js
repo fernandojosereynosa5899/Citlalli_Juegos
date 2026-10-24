@@ -59,17 +59,29 @@
       if (!this.instances[id]) this.instances[id] = new A.games[id](this);
       this.gameId = id;
       this.game = this.instances[id];
+      A.audio.unlock();
+      A.audio.playMusic(A.store.prefs.scenario);
       this.game.enter();
     },
 
-    leave() { this.game = null; this.gameId = null; },
+    leave() {
+      A.audio.stopMusic();
+      this.game = null;
+      this.gameId = null;
+    },
 
     /** Fin de partida: guarda récord (RAM + localStorage + API) y bloquea el reinicio unos ms. */
     finish(game, score, extra) {
+      A.audio.stopMusic();
       const r = A.store.submitScore(game.id, score, extra);
       game.result = { score, isRecord: r.isRecord, best: r.best };
       game.state = 'over';
       game.overAt = performance.now();
+      if (r.isRecord) {
+        A.audio.play('win');
+      } else {
+        A.audio.play('gameover');
+      }
       if (A.ui) A.ui.refreshBest();
       return game.result;
     },

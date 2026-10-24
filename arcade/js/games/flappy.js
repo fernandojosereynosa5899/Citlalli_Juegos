@@ -52,10 +52,10 @@
       this.particles.clear();
     }
 
-    enter() { this.reset(); }
+    enter() { this.reset(); A.audio.playMusic(A.store.prefs.scenario); }
     onResize() { this.reset(); }
     onSettingsChange(kind) { if (kind === 'difficulty') this.reset(); }
-    restart() { this.reset(); this.state = 'playing'; this.flap(); }
+    restart() { this.reset(); this.state = 'playing'; A.audio.unlock(); A.audio.playMusic(A.store.prefs.scenario); this.flap(); }
 
     /* ------------------------------------------------------------- entrada */
     onKeyDown(e) {

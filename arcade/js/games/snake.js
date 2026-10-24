@@ -68,8 +68,8 @@
       this.topUp();
     }
 
-    enter() { this.layout(); this.reset(); }
-    restart() { this.reset(); this.state = 'playing'; A.audio.play('tick'); }
+    enter() { this.layout(); this.reset(); A.audio.playMusic(A.store.prefs.scenario); }
+    restart() { this.reset(); this.state = 'playing'; A.audio.unlock(); A.audio.playMusic(A.store.prefs.scenario); A.audio.play('tick'); }
     onResize() { this.layout(); this.reset(); }
     onSettingsChange(kind) { if (kind === 'difficulty') this.reset(); }
 
@@ -230,7 +230,7 @@
         this.particles.emit(px, py, { count: 36, speed: 260, life: 1, size: 6, colors: ['#ff4d6d', '#ffd23f', '#3ddc84', '#4cc9f0', '#c77dff'], round: true });
         this.particles.text(px, py - 34, '¡FIEBRE ASTRAL x2!', '#ffffff', 22);
       } else {
-        A.audio.play(def.pts >= 400 ? 'point' : 'hit');
+        A.audio.play(def.pts >= 400 ? 'spray' : 'collect');
       }
 
       // Generar obstáculo sutil con el progreso de puntuación para aumentar el reto

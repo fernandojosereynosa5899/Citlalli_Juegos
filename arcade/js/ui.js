@@ -209,6 +209,7 @@
         b.addEventListener('click', () => {
           A.store.setPref('scenario', id); // cambio "al vuelo": no reinicia la partida
           this.syncSelectors();
+          if (A.engine.gameId) A.audio.playMusic(id);
           if (A.engine.game && A.engine.game.onSettingsChange) A.engine.game.onSettingsChange('scenario');
         });
         sc.appendChild(b);

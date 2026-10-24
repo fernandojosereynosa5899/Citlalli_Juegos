@@ -65,8 +65,8 @@
       this.layout();
     }
 
-    enter() { this.reset(); }
-    restart() { this.reset(); this.begin(); }
+    enter() { this.reset(); A.audio.playMusic(A.store.prefs.scenario); }
+    restart() { this.reset(); A.audio.unlock(); A.audio.playMusic(A.store.prefs.scenario); this.begin(); }
     onSettingsChange(kind) { if (kind === 'difficulty') this.reset(); }
     onResize() { this.layout(); }
 
@@ -150,7 +150,7 @@
         if (this.pairs === DECK.length) this.winTimer = 0.9;
       } else {
         ch.a.target = 0; ch.b.target = 0;
-        A.audio.play('flip');
+        A.audio.play('mismatch');
       }
     }
 
