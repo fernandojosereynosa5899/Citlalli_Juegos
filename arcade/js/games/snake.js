@@ -54,14 +54,17 @@
       this.dir = { x: 1, y: 0 };
       this.queue = [];
       this.foods = [];
+      this.obstacles = [];
       this.score = 0;
       this.fever = 0;
       this.stepAcc = 0;
       this.specialTimer = U.rand(6, 10);
+      this.nextObstacleScore = this.cfg.obsStep || 600;
       this.shake = 0;
       this.result = null;
       this.state = 'ready';
       this.particles.clear();
+      for (let i = 0; i < (this.cfg.initObs || 0); i++) this.spawnObstacle();
       this.topUp();
     }
 
@@ -108,13 +111,35 @@
       if (this.queue.length < 3) this.queue.push({ x: dx, y: dy });
     }
 
-    /* ------------------------------------------------------------- comida */
+    /* ------------------------------------------------------------- comida y obstáculos */
     freeCell() {
       for (let i = 0; i < 300; i++) {
         const x = U.randInt(0, this.cols - 1), y = U.randInt(0, this.rows - 1);
-        if (!this.snake.some((s) => s.x === x && s.y === y) && !this.foods.some((f) => f.x === x && f.y === y)) return { x, y };
+        if (!this.snake.some((s) => s.x === x && s.y === y) &&
+            !this.foods.some((f) => f.x === x && f.y === y) &&
+            !this.obstacles.some((o) => o.x === x && o.y === y)) return { x, y };
       }
       return null;
+    }
+
+    spawnObstacle() {
+      const head = this.snake && this.snake[0] ? this.snake[0] : { x: -10, y: -10 };
+      for (let i = 0; i < 300; i++) {
+        const x = U.randInt(1, this.cols - 2);
+        const y = U.randInt(1, this.rows - 2);
+        if (Math.hypot(x - head.x, y - head.y) < 3.2) continue; // seguridad inicial
+        if (this.snake.some((s) => s.x === x && s.y === y)) continue;
+        if (this.foods.some((f) => f.x === x && f.y === y)) continue;
+        if (this.obstacles.some((o) => o.x === x && o.y === y)) continue;
+        this.obstacles.push({ x, y, age: 0 });
+        const px = this.ox + x * CELL + CELL / 2, py = this.oy + y * CELL + CELL / 2;
+        this.particles.emit(px, py, {
+          count: 12, speed: 80, life: 0.5, size: 4,
+          colors: ['#7a7268', '#423d38', '#E8B84A']
+        });
+        return true;
+      }
+      return false;
     }
 
     spawn(type, ttl) {
@@ -132,6 +157,7 @@
       this.t += dt;
       this.particles.update(dt);
       if (this.shake > 0) this.shake -= dt;
+      this.obstacles.forEach((o) => { o.age += dt; });
       if (this.state !== 'playing') return;
 
       if (this.fever > 0) {
@@ -181,6 +207,7 @@
       const foodIdx = this.foods.findIndex((f) => f.x === nx && f.y === ny);
       const body = foodIdx >= 0 ? this.snake : this.snake.slice(0, -1); // la cola se aparta si no crece
       if (body.some((s) => s.x === nx && s.y === ny)) return this.die();
+      if (this.obstacles.some((o) => o.x === nx && o.y === ny)) return this.die();
 
       this.snake.unshift({ x: nx, y: ny });
       if (foodIdx >= 0) this.eat(this.foods.splice(foodIdx, 1)[0]);
@@ -205,6 +232,15 @@
       } else {
         A.audio.play(def.pts >= 400 ? 'point' : 'hit');
       }
+
+      // Generar obstáculo sutil con el progreso de puntuación para aumentar el reto
+      if (this.score >= this.nextObstacleScore && this.obstacles.length < (this.cfg.maxObs || 5)) {
+        if (this.spawnObstacle()) {
+          this.nextObstacleScore += (this.cfg.obsStep || 600);
+          this.particles.text(this.ox + (this.cols * CELL) / 2, this.oy + 14, '¡MONOLITO!', '#E8B84A', 18);
+        }
+      }
+
       this.topUp();
     }
 
@@ -232,6 +268,7 @@
       }
 
       this.drawBoard(ctx);
+      this.drawObstacles(ctx);
       this.drawFoods(ctx);
       this.drawSnake(ctx);
       this.particles.draw(ctx);
@@ -245,7 +282,7 @@
         U.text(ctx, '🐍 LA VÍBORITA', W / 2, H / 2 - m * 0.04, { size: Math.round(m * 0.075), align: 'center', color: '#7CFFB2' });
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(t * 5);
         U.text(ctx, 'Desliza o usa flechas / WASD', W / 2, H / 2 + m * 0.04, { size: Math.round(m * 0.038), align: 'center' });
-        U.text(ctx, this.cfg.wrap ? 'Sin paredes: atraviesa los bordes' : '¡Cuidado con las paredes!', W / 2, H / 2 + m * 0.095, { size: Math.round(m * 0.03), align: 'center', color: '#C8B27A' });
+        U.text(ctx, this.cfg.wrap ? 'Sin paredes · ¡Esquiva los monolitos sagrados!' : '¡Cuidado con las paredes y monolitos!', W / 2, H / 2 + m * 0.095, { size: Math.round(m * 0.03), align: 'center', color: '#C8B27A' });
         ctx.globalAlpha = 1;
       }
       if (this.state === 'over' && this.result) {
@@ -269,6 +306,63 @@
       if (this.cfg.wrap) ctx.setLineDash([10, 8]);
       ctx.strokeRect(ox - 1.5, oy - 1.5, cols * CELL + 3, rows * CELL + 3);
       ctx.setLineDash([]);
+    }
+
+    /** Monolitos de basalto sagrado con glifo dorado y gema de ámbar */
+    drawObstacles(ctx) {
+      const { ox, oy } = this;
+      const t = this.t;
+      for (const ob of this.obstacles) {
+        const x = ox + ob.x * CELL, y = oy + ob.y * CELL;
+        const pop = ob.age < 0.25 ? Math.min(1, ob.age / 0.25) : 1;
+
+        ctx.save();
+        if (pop < 1) {
+          ctx.translate(x + CELL / 2, y + CELL / 2);
+          ctx.scale(pop, pop);
+          ctx.translate(-(x + CELL / 2), -(y + CELL / 2));
+        }
+
+        // Sombra
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.fillRect(x + 2, y + 4, CELL - 4, CELL - 4);
+
+        // Bloque de basalto oscuro
+        ctx.fillStyle = '#211f2c';
+        ctx.fillRect(x + 2, y + 2, CELL - 4, CELL - 4);
+
+        // Biseles de relieve 3D
+        ctx.fillStyle = '#444055';
+        ctx.fillRect(x + 2, y + 2, CELL - 4, 2);
+        ctx.fillRect(x + 2, y + 2, 2, CELL - 4);
+        ctx.fillStyle = '#100e16';
+        ctx.fillRect(x + 2, y + CELL - 4, CELL - 4, 2);
+        ctx.fillRect(x + CELL - 4, y + 2, 2, CELL - 4);
+
+        // Relieve geométrico escalonado mesoamericano
+        ctx.fillStyle = '#C9972F';
+        ctx.fillRect(x + 5, y + 5, CELL - 10, 2);
+        ctx.fillRect(x + 5, y + CELL - 7, CELL - 10, 2);
+        ctx.fillRect(x + 5, y + 7, 2, 4);
+        ctx.fillRect(x + CELL - 7, y + CELL - 11, 2, 4);
+
+        // Núcleo de ámbar / resina sagrada pulsante
+        const pulse = 0.65 + 0.35 * Math.sin(t * 4 + ob.x * 2 + ob.y);
+        ctx.fillStyle = `rgba(232,184,74,${0.35 * pulse})`;
+        ctx.fillRect(x + 9, y + 9, CELL - 18, CELL - 18);
+
+        ctx.fillStyle = '#e86b24';
+        ctx.fillRect(x + 10, y + 10, CELL - 20, CELL - 20);
+        ctx.fillStyle = '#fff1b8';
+        ctx.fillRect(x + 11, y + 11, 2, 2);
+
+        // Ribete fino
+        ctx.strokeStyle = '#8a6a22';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 2.5, y + 2.5, CELL - 5, CELL - 5);
+
+        ctx.restore();
+      }
     }
 
     drawFoods(ctx) {

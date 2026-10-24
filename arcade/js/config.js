@@ -75,10 +75,10 @@
     /** Parámetros por juego y dificultad (velocidad, aperturas, tiempos). */
     TUNING: {
       snake: {
-        // pasos/seg iniciales, aceleración por segmento, ¿las paredes atraviesan?
-        facil: { speed: 6.5, accel: 0.10, wrap: true },
-        medio: { speed: 9, accel: 0.14, wrap: false },
-        dificil: { speed: 12, accel: 0.20, wrap: false }
+        // pasos/seg iniciales, aceleración por segmento, ¿las paredes atraviesan?, obstáculos
+        facil: { speed: 6.5, accel: 0.10, wrap: true, initObs: 1, maxObs: 3, obsStep: 800 },
+        medio: { speed: 9, accel: 0.14, wrap: false, initObs: 2, maxObs: 5, obsStep: 600 },
+        dificil: { speed: 12, accel: 0.20, wrap: false, initObs: 4, maxObs: 7, obsStep: 500 }
       },
       flappy: {
         // apertura entre columnas, velocidad horizontal, separación entre columnas
