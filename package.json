@@ -1,5 +1,15 @@
 {
+  "name": "citlalli-arcade",
+  "version": "1.0.0",
+  "description": "Sala Arcade Retro Pixel Art - CITLALLI El Aroma de los Dioses",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "pg": "^8.23.1"
+    "pg": "^8.13.1"
   }
 }

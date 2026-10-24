@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/", "destination": "/arcade/index.html" },
+    { "source": "/api/records", "destination": "/api/records.js" }
+  ]
+}
