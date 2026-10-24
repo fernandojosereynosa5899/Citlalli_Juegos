@@ -57,6 +57,19 @@
     </main>
   </div>
 
+  <!-- ===== Notificación de Cuenta o Base de Datos Reiniciada ===== -->
+  <div id="resetAlertModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="resetAlertTitle">
+    <div class="modal-card reset-card">
+      <div class="reset-icon" aria-hidden="true">📢</div>
+      <h2 id="resetAlertTitle">SALÓN ARCADE CITLALLI</h2>
+      <p id="resetAlertMsg" class="reset-msg">
+        La base de datos fue reiniciada o tu cuenta fue eliminada del servidor. Tu sesión y récords locales han sido restablecidos.
+      </p>
+      <p class="reset-sub">✦ Regístrate de nuevo para elegir tu avatar y competir por el trono ✦</p>
+      <button id="btnAckReset" type="button" class="cta">¡REGISTRARME DE NUEVO!</button>
+    </div>
+  </div>
+
   <!-- ===== Registro de jugador oficial ===== -->
   <div id="welcome" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
     <form id="welcomeForm" class="modal-card" autocomplete="off">

@@ -17,6 +17,7 @@
       this.buildSelectors();
       this.buildLobby();
       this.buildWelcome();
+      this.buildResetAlert();
       this.buildTopModal();
       this.buildDpad();
 
@@ -32,6 +33,20 @@
       });
 
       A.store.onStatus(() => this.refreshNet());
+      A.store.onUserPurged(({ reason, username }) => {
+        let msg = 'La base de datos fue reiniciada o tu cuenta fue eliminada del servidor. Tu sesión y récords locales han sido restablecidos para garantizar el juego limpio.';
+        if (reason === 'banned') {
+          msg = `La cuenta "${username || ''}" ha sido sancionada o purgada del servidor. Tu sesión local ha sido restablecida.`;
+        } else if (username) {
+          msg = `La base de datos fue reiniciada o la cuenta "${username}" ya no existe en el servidor. Tu sesión local ha sido restablecida.`;
+        }
+        this.closeTop();
+        this.refreshPlayerChip();
+        this.refreshBest();
+        this.showLobby();
+        this.openResetAlert(msg);
+      });
+
       this.syncMute();
       this.refreshNet();
       this.refreshPlayerChip();
@@ -123,6 +138,12 @@
     },
 
     openWelcome() {
+      const input = $('nameInput');
+      if (input && !A.store.player) {
+        input.value = '';
+        $('nameCount').textContent = `0/${C.NAME_MAX}`;
+        $('btnEnter').disabled = true;
+      }
       $('welcome').hidden = false;
       this.setModal(true);
       setTimeout(() => { try { $('nameInput').focus(); } catch (e) { /* ignorar */ } }, 80);
@@ -133,6 +154,28 @@
       this.setModal(false);
       this.refreshPlayerChip();
       this.showLobby();
+    },
+
+    /* ---------------------------------------------------------------- aviso de reseteo */
+    buildResetAlert() {
+      const btn = $('btnAckReset');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          this.closeResetAlert();
+          this.openWelcome();
+        });
+      }
+    },
+
+    openResetAlert(msg) {
+      if (msg) $('resetAlertMsg').textContent = msg;
+      $('resetAlertModal').hidden = false;
+      this.setModal(true);
+    },
+
+    closeResetAlert() {
+      $('resetAlertModal').hidden = true;
+      this.setModal(false);
     },
 
     /* ---------------------------------------------------------------- selectores */

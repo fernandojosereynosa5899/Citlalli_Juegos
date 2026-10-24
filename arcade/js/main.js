@@ -18,7 +18,13 @@
       A.ui.init();
       A.engine.init();
       loading.hidden = true;
-      if (A.store.player) A.ui.showLobby(); else { A.ui.showLobby(); A.ui.openWelcome(); }
+      if (A.store.player) {
+        A.ui.showLobby();
+        A.store.verifyPlayerWithServer();
+      } else {
+        A.ui.showLobby();
+        A.ui.openWelcome();
+      }
     }).catch((e) => {
       console.error('[boot]', e);
       loading.querySelector('p').textContent = 'No se pudo iniciar. Recarga la página.';

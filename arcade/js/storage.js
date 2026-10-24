@@ -30,6 +30,7 @@
   const remoteCache = {}; // último top recibido de la API por juego
   const net = { enabled: global.location.protocol !== 'file:', online: null, retryAt: 0, flushing: false };
   const listeners = [];
+  const purgeListeners = [];
 
   /* ---------- localStorage seguro ---------- */
   const ls = {
@@ -76,6 +77,19 @@
     } catch (e) { /* datos corruptos: se ignoran y se parte de cero */ }
   }
 
+  /** Notifica y purga el usuario local si la BD fue borrada o el usuario eliminado */
+  function handleUserPurged(reason, info) {
+    const oldName = mem.player ? mem.player.name : '';
+    if (!oldName && !mem.player) return;
+    mem.player = null;
+    GAME_IDS.forEach((g) => { mem.records[g] = []; delete remoteCache[g]; });
+    mem.pending = [];
+    persist();
+    purgeListeners.forEach((cb) => {
+      try { cb({ reason: reason || 'deleted', username: oldName, info }); } catch (e) { /* ignorar */ }
+    });
+  }
+
   function setOnline(v) {
     if (net.online !== v) {
       net.online = v;
@@ -87,13 +101,14 @@
    * fetch con timeout duro de 3.5 s. Devuelve { ok, status, data } o null si hubo fallo de red/timeout.
    * Un error 4xx (registro inválido) NO cuenta como servidor caído.
    */
-  async function api(method, body) {
+  async function api(method, body, query) {
     if (!net.enabled || Date.now() < net.retryAt) return null;
     let timer;
     try {
       const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
       const timeout = new Promise((_, rej) => { timer = setTimeout(() => { if (ctrl) ctrl.abort(); rej(new Error('timeout')); }, C.API_TIMEOUT_MS); });
-      const req = fetch(C.API_URL, {
+      const fullUrl = C.API_URL + (query ? (C.API_URL.includes('?') ? '&' : '?') + query : '');
+      const req = fetch(fullUrl, {
         method,
         headers: body ? { 'Content-Type': 'application/json' } : undefined,
         body: body ? JSON.stringify(body) : undefined,
@@ -129,6 +144,13 @@
           bestMs: r.bestMs, difficulty: r.difficulty, scenario: r.scenario
         });
         if (!res) break; // servidor caído: reintentar luego
+        if (res.data && res.data.userExists === false) {
+          // La base de datos fue reseteada o el usuario fue borrado/sancionado
+          mem.pending = [];
+          persist();
+          handleUserPurged(res.data.isBanned ? 'banned' : 'deleted', res.data);
+          break;
+        }
         mem.pending.shift(); // aceptado (2xx) o rechazado definitivamente (4xx)
         persist();
       }
@@ -160,6 +182,7 @@
     },
 
     onStatus(cb) { listeners.push(cb); },
+    onUserPurged(cb) { purgeListeners.push(cb); },
 
     setPref(key, value) { mem.prefs[key] = value; persist(); },
 
@@ -168,9 +191,31 @@
       if (mem.player) return mem.player;
       const name = sanitizeName(rawName);
       if (!name) return null;
-      mem.player = { name, avatar: C.AVATARS.some((a) => a.id === avatar) ? avatar : 'bottle' };
+      const av = C.AVATARS.some((a) => a.id === avatar) ? avatar : 'bottle';
+      mem.player = { name, avatar: av };
       persist();
+      // Notificar al servidor inmediatamente para registrar en citlalli_players
+      api('POST', { action: 'register', username: name, avatar: av }).catch(() => {});
       return mem.player;
+    },
+
+    /** Verifica con el servidor si la cuenta o la base de datos fue purgada */
+    async verifyPlayerWithServer() {
+      if (!mem.player) return;
+      try {
+        const res = await api('GET', null, 'user=' + encodeURIComponent(mem.player.name));
+        if (res && res.data && res.data.userCheck) {
+          const uc = res.data.userCheck;
+          if (uc.checked && uc.dbConnected && uc.exists === false) {
+            handleUserPurged(uc.isBanned ? 'banned' : 'deleted', uc);
+          }
+        }
+      } catch (e) { /* ignorar */ }
+    },
+
+    /** Purga voluntaria o reseteo local */
+    resetLocalUser() {
+      handleUserPurged('manual');
     },
 
     /** Mejor marca local del jugador actual en un juego (o null). */
@@ -211,7 +256,14 @@
     async fetchTop(game) {
       let source = 'local';
       try {
-        const res = await api('GET');
+        const q = mem.player ? ('user=' + encodeURIComponent(mem.player.name)) : '';
+        const res = await api('GET', null, q);
+        if (res && res.data && res.data.userCheck) {
+          const uc = res.data.userCheck;
+          if (uc.checked && uc.dbConnected && uc.exists === false) {
+            handleUserPurged(uc.isBanned ? 'banned' : 'deleted', uc);
+          }
+        }
         if (res && res.ok && res.data && Array.isArray(res.data[game])) {
           remoteCache[game] = res.data[game].map((r) => ({
             username: String(r.username), valor: Number(r.valor), avatar: r.avatar || 'bottle',

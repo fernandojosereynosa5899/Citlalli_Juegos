@@ -114,9 +114,47 @@ if (process.env.DATABASE_URL) {
     });
     pool.on('error', (e) => console.error('[pg]', e.message));
     pgStore = {
+      async checkUser(username) {
+        const u = String(username || '').trim().toUpperCase();
+        if (!u) return { checked: false, dbConnected: true };
+        const chk = await pool.query('SELECT id, is_banned FROM citlalli_players WHERE username = $1', [u]);
+        const cnt = await pool.query('SELECT COUNT(*)::int AS c FROM citlalli_players');
+        const total = (cnt.rows[0] && cnt.rows[0].c) || 0;
+        if (chk.rows.length === 0) {
+          return { checked: true, username: u, exists: false, isBanned: false, totalPlayers: total, dbConnected: true };
+        }
+        const isBanned = !!chk.rows[0].is_banned;
+        return { checked: true, username: u, exists: !isBanned, isBanned, totalPlayers: total, dbConnected: true };
+      },
+      async register(username, avatar) {
+        const u = String(username || '').trim().toUpperCase();
+        const av = AVATARS[avatar] ? avatar : 'bottle';
+        const glyph = AVATARS[av] || '🧴';
+        await pool.query(
+          `INSERT INTO citlalli_players (username, avatar_id, avatar_emoji)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (username) DO UPDATE
+           SET avatar_id = EXCLUDED.avatar_id, avatar_emoji = EXCLUDED.avatar_emoji, last_active = CURRENT_TIMESTAMP`,
+          [u, av, glyph]
+        );
+        return { ok: true, registered: true };
+      },
       async submit(r) {
+        // Verificar que el usuario exista en citlalli_players antes de insertar
+        const chk = await pool.query('SELECT id, is_banned FROM citlalli_players WHERE username = $1', [r.username]);
+        if (chk.rows.length === 0) {
+          const err = new Error('USER_NOT_FOUND');
+          err.code = 'USER_NOT_FOUND';
+          throw err;
+        }
+        if (chk.rows[0].is_banned) {
+          const err = new Error('USER_BANNED');
+          err.code = 'USER_BANNED';
+          throw err;
+        }
         await pool.query('SELECT fn_citlalli_submit_score($1,$2,$3,$4,$5,$6,$7,$8)',
           [r.username, r.avatar, AVATARS[r.avatar], r.game, r.score, r.bestMs, r.difficulty, r.scenario]);
+        return { ok: true };
       },
       async top() { return (await pool.query('SELECT fn_get_clean_arcade_records_json() AS j')).rows[0].j; }
     };
@@ -128,9 +166,26 @@ if (process.env.DATABASE_URL) {
 
 /** Intenta PostgreSQL; si falla, cae al archivo JSON sin romper la API. */
 const store = {
+  async checkUser(username) {
+    if (pgStore) {
+      try { return await pgStore.checkUser(username); }
+      catch (e) { console.error('[pg] checkUser:', e.message); }
+    }
+    return { checked: false, dbConnected: false };
+  },
+  async register(username, avatar) {
+    if (pgStore) {
+      try { return await pgStore.register(username, avatar); }
+      catch (e) { console.error('[pg] register:', e.message); }
+    }
+    return { ok: true, registered: true };
+  },
   async submit(r) {
-    if (pgStore) { try { await pgStore.submit(r); return; } catch (e) { console.error('[pg] submit:', e.message); } }
+    if (pgStore) {
+      return await pgStore.submit(r);
+    }
     await fileStore.submit(r);
+    return { ok: true };
   },
   async top() {
     if (pgStore) { try { return await pgStore.top(); } catch (e) { console.error('[pg] top:', e.message); } }
@@ -154,16 +209,50 @@ function sendJSON(res, code, obj) {
 
 async function api(req, res) {
   if (rateLimited(req.socket.remoteAddress)) return sendJSON(res, 429, { error: 'demasiadas solicitudes' });
-  if (req.method === 'GET') return sendJSON(res, 200, await store.top());
+  const reqUrl = new URL(req.url, 'http://localhost');
+  if (req.method === 'GET') {
+    const checkUser = reqUrl.searchParams.get('user');
+    const topData = await store.top();
+    let userCheck = null;
+    if (checkUser) {
+      userCheck = await store.checkUser(checkUser);
+    }
+    return sendJSON(res, 200, { ...(topData || {}), userCheck });
+  }
   if (req.method === 'POST') {
     let size = 0; const chunks = [];
     for await (const c of req) { size += c.length; if (size > 2048) return sendJSON(res, 413, { error: 'cuerpo demasiado grande' }); chunks.push(c); }
     let body = null;
     try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch (e) { /* inválido */ }
+    if (!body || typeof body !== 'object') return sendJSON(res, 400, { error: 'cuerpo inválido' });
+
+    // Registro explícito de jugador
+    if (body.action === 'register') {
+      const username = String(body.username || '').trim().toUpperCase();
+      if (!/^[A-Z0-9]{1,8}$/.test(username)) return sendJSON(res, 400, { error: 'nombre inválido (máx 8)' });
+      const avatar = AVATARS[body.avatar] ? body.avatar : 'bottle';
+      await store.register(username, avatar);
+      return sendJSON(res, 201, { ok: true, registered: true });
+    }
+
     const rec = validate(body);
     if (!rec) return sendJSON(res, 400, { error: 'registro inválido' });
-    await store.submit(rec);
-    return sendJSON(res, 201, { ok: true });
+
+    try {
+      await store.submit(rec);
+      return sendJSON(res, 201, { ok: true });
+    } catch (err) {
+      if (err.code === 'USER_NOT_FOUND') {
+        return sendJSON(res, 403, { error: 'user_not_found', userExists: false, message: 'La cuenta no existe o la base de datos fue reiniciada.' });
+      }
+      if (err.code === 'USER_BANNED') {
+        return sendJSON(res, 403, { error: 'user_banned', userExists: false, isBanned: true, message: 'La cuenta está sancionada.' });
+      }
+      console.error('[store.submit error]', err.message);
+      // Fallback a archivo si falló la conexión puntual
+      await fileStore.submit(rec);
+      return sendJSON(res, 201, { ok: true, fallback: true });
+    }
   }
   return sendJSON(res, 405, { error: 'método no permitido' });
 }

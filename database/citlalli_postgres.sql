@@ -272,3 +272,14 @@ BEGIN
     RAISE NOTICE 'El usuario % ha sido sancionado y sus récords han sido purgados.', p_username;
 END;
 $$;
+
+-- Procedimiento para vaciar COMPLETAMENTE la base de datos (jugadores y récords a cero absoluto)
+-- Al ejecutar esto, el juego detectará automáticamente el reinicio, borrará el localStorage
+-- del jugador y le solicitará registrarse nuevamente con un aviso claro en pantalla.
+CREATE OR REPLACE PROCEDURE sp_citlalli_wipe_database()
+LANGUAGE plpgsql AS $$
+BEGIN
+    TRUNCATE TABLE citlalli_players CASCADE;
+    RAISE NOTICE 'Base de datos Citlalli vaciada por completo (jugadores y récords a cero).';
+END;
+$$;
