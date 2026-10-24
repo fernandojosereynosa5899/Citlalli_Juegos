@@ -40,7 +40,7 @@ const GAMES = ['snake', 'flappy', 'memorama', 'reflejos'];
 const AVATARS = { bottle: '🧴', charm_qm: '🏅', jaguar: '🐆', star: '⭐', rose: '🌹', amber: '🟠' };
 const DIFFS = ['facil', 'medio', 'dificil'];
 const SCENARIOS = ['hidalgo', 'jaguar', 'velvet', 'penthouse'];
-const MAX_SCORE = { snake: 35000, flappy: 5000, reflejos: 20000, memorama: 500 }; // alineado con el trigger SQL
+const MAX_SCORE = { snake: 60000, flappy: 12000, reflejos: 45000, memorama: 500 }; // alineado con el trigger SQL
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',

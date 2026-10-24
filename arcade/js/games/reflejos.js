@@ -98,11 +98,12 @@
       this.captured++;
       const speed = U.clamp(1 - ms / (it.life * 1000), 0, 1);
       const mult = 1 + Math.min(this.streak - 1, 10) * 0.1;
-      const pts = Math.round((100 + 100 * speed) * mult);
+      const diffMult = this.cfg.scoreMult || 1.0;
+      const pts = Math.round((100 + 100 * speed) * mult * diffMult);
       this.score += pts;
       const cols = ESSENCE_COLORS[it.sprite];
       this.particles.emit(it.x, it.y, { count: 22, speed: 240, life: 0.7, size: 6, colors: cols.concat('#ffffff'), round: true });
-      this.particles.text(it.x, it.y - it.r, '+' + pts, '#FFE9A8', 22);
+      this.particles.text(it.x, it.y - it.r, '+' + pts, diffMult > 1.4 ? '#7CFFB2' : '#FFE9A8', diffMult > 1.4 ? 25 : 22);
       if (ms < LIGHTNING_MS) { this.flashT = 1.3; A.audio.play('reflex_hit'); } else A.audio.play(this.streak % 5 === 0 ? 'spray' : 'point');
     }
 

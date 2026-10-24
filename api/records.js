@@ -19,7 +19,7 @@ const GAMES = ['snake', 'flappy', 'memorama', 'reflejos'];
 const AVATARS = { bottle: '🧴', charm_qm: '🏅', jaguar: '🐆', star: '⭐', rose: '🌹', amber: '🟠' };
 const DIFFS = ['facil', 'medio', 'dificil'];
 const SCENARIOS = ['hidalgo', 'jaguar', 'velvet', 'penthouse'];
-const MAX_SCORE = { snake: 35000, flappy: 5000, reflejos: 20000, memorama: 500 };
+const MAX_SCORE = { snake: 60000, flappy: 12000, reflejos: 45000, memorama: 500 };
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');

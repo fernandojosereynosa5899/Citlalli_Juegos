@@ -217,18 +217,20 @@
     eat(f) {
       const def = FOODS[f.type];
       const mult = this.fever > 0 ? 2 : 1;
-      const pts = def.pts * mult;
+      const diffMult = this.cfg.scoreMult || 1.0;
+      const pts = Math.round(def.pts * mult * diffMult);
       this.score += pts;
       const px = this.ox + f.x * CELL + CELL / 2, py = this.oy + f.y * CELL + CELL / 2;
       this.particles.emit(px, py, { count: 14, speed: 150, life: 0.6, size: 5, colors: ['#FFD86B', '#fff1b8', '#7CFFB2'] });
-      this.particles.text(px, py - 8, '+' + pts, mult > 1 ? '#ff9cf0' : '#FFE9A8', mult > 1 ? 24 : 20);
+      const txtColor = diffMult > 1.4 ? '#ff9cf0' : (mult > 1 ? '#ff9cf0' : '#FFE9A8');
+      this.particles.text(px, py - 8, '+' + pts, txtColor, diffMult > 1.4 ? 24 : 20);
       if (f.type === 'bottle_citlalli') this.snake.push({ ...this.snake[this.snake.length - 1] });
 
       if (f.type === 'star_citlalli') {
         this.fever = FEVER_SECONDS;
         A.audio.play('power');
         this.particles.emit(px, py, { count: 36, speed: 260, life: 1, size: 6, colors: ['#ff4d6d', '#ffd23f', '#3ddc84', '#4cc9f0', '#c77dff'], round: true });
-        this.particles.text(px, py - 34, '¡FIEBRE ASTRAL x2!', '#ffffff', 22);
+        this.particles.text(px, py - 34, `¡FIEBRE ASTRAL x${Math.round(2 * diffMult * 10) / 10}!`, '#ffffff', 22);
       } else {
         A.audio.play(def.pts >= 400 ? 'spray' : 'collect');
       }
@@ -236,7 +238,7 @@
       // Generar obstáculo sutil con el progreso de puntuación para aumentar el reto
       if (this.score >= this.nextObstacleScore && this.obstacles.length < (this.cfg.maxObs || 5)) {
         if (this.spawnObstacle()) {
-          this.nextObstacleScore += (this.cfg.obsStep || 600);
+          this.nextObstacleScore += (this.cfg.obsStep || 500);
           this.particles.text(this.ox + (this.cols * CELL) / 2, this.oy + 14, '¡MONOLITO!', '#E8B84A', 18);
         }
       }

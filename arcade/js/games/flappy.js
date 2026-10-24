@@ -158,9 +158,10 @@
         const c = this.cols[i];
         if (!c.passed && c.x + COL_W < b.x - BIRD_R) {
           c.passed = true;
-          this.score++;
+          const pts = this.cfg.ptsPerCol || 1;
+          this.score += pts;
           A.audio.play('point');
-          this.particles.text(b.x + 30, b.y - 30, '+1', '#FFE9A8', 22);
+          this.particles.text(b.x + 30, b.y - 30, '+' + pts, pts > 1 ? '#7CFFB2' : '#FFE9A8', pts > 1 ? 26 : 22);
         }
         if (c.x + CAP_W < -20) { this.cols.splice(i, 1); continue; }
         if (this.invuln <= 0 && this.hits(c)) {
@@ -185,9 +186,11 @@
         if (Math.hypot(c.x - b.x, cy - b.y) < 34) {
           this.charms.splice(i, 1);
           this.shield = true;
+          const bonus = this.cfg.charmBonus || 2;
+          this.score += bonus;
           A.audio.play('power');
           this.particles.emit(c.x, cy, { count: 22, speed: 200, life: 0.8, size: 6, colors: ['#1fbf7a', '#FFD86B', '#fff1b8'], round: true });
-          this.particles.text(c.x, cy - 30, '¡ESCUDO!', '#7CFFB2', 22);
+          this.particles.text(c.x, cy - 30, `¡ESCUDO +${bonus}!`, '#7CFFB2', 22);
         }
       }
 

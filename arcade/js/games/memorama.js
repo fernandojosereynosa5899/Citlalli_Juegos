@@ -55,6 +55,8 @@
       this.check = null;
       this.attempts = 0;
       this.pairs = 0;
+      this.streak = 0;
+      this.bonusDiscount = 0;
       this.time = 0;
       this.peek = 0;
       this.winTimer = 0;
@@ -145,11 +147,19 @@
           this.particles.emit(c.x, c.y, { count: 18, speed: 210, life: 0.8, size: 6, colors: ['#FFD86B', '#fff1b8', '#7CFFB2', '#ffffff'] });
         });
         this.pairs++;
+        this.streak = (this.streak || 0) + 1;
         A.audio.play('match');
-        this.particles.text((ch.a.x + ch.b.x) / 2, (ch.a.y + ch.b.y) / 2, '¡PAR!', '#7CFFB2', 22);
+        let txt = '¡PAR!';
+        if (this.cfg.streakBonus > 0 && this.streak >= 2) {
+          this.bonusDiscount = (this.bonusDiscount || 0) + 1;
+          txt = `¡RACHA x${this.streak} (-1 INTENTO)!`;
+          A.audio.play('power');
+        }
+        this.particles.text((ch.a.x + ch.b.x) / 2, (ch.a.y + ch.b.y) / 2, txt, this.streak >= 2 ? '#FFD86B' : '#7CFFB2', 22);
         if (this.pairs === DECK.length) this.winTimer = 0.9;
       } else {
         ch.a.target = 0; ch.b.target = 0;
+        this.streak = 0;
         A.audio.play('mismatch');
       }
     }
@@ -187,7 +197,8 @@
         if (this.winTimer <= 0) {
           this.timing = false;
           A.audio.play('win');
-          this.e.finish(this, this.attempts, {});
+          const finalScore = Math.max(10, this.attempts - (this.bonusDiscount || 0));
+          this.e.finish(this, finalScore, { attempts: this.attempts, bonusDiscount: this.bonusDiscount });
           for (let k = 0; k < 4; k++) this.particles.emit(this.e.W / 2, this.e.H / 2, { count: 30, speed: 420, life: 1.3, size: 7, gravity: 260, colors: ['#FFD86B', '#fff1b8', '#E0A98B', '#7CFFB2'] });
         }
       }
@@ -312,7 +323,8 @@
       ctx.fillStyle = '#E8B84A';
       ctx.fillRect(0, HUD_H - 2, W, 2);
       const fs = W < 700 ? 15 : 19;
-      U.text(ctx, 'INTENTOS ' + this.attempts, 12, 22, { size: fs, color: '#FFE9A8' });
+      const attTxt = 'INTENTOS ' + this.attempts + (this.bonusDiscount > 0 ? ` (-${this.bonusDiscount})` : '');
+      U.text(ctx, attTxt, 12, 22, { size: fs, color: '#FFE9A8' });
       U.text(ctx, `PARES ${this.pairs}/${DECK.length}`, W / 2, 22, { size: fs, align: 'center', color: '#7CFFB2' });
       const mm = Math.floor(this.time / 60), ss = Math.floor(this.time % 60);
       U.text(ctx, `⏱ ${mm}:${String(ss).padStart(2, '0')}`, W - 12, 22, { size: fs, align: 'right', color: '#FFE9A8' });

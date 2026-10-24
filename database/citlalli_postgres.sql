@@ -85,11 +85,11 @@ BEGIN
     END IF;
 
     -- 2. Validar umbrales matemáticos razonables por juego para evitar hacks de consola
-    IF NEW.game_id = 'snake' AND NEW.score > 35000 THEN
+    IF NEW.game_id = 'snake' AND NEW.score > 60000 THEN
         RAISE EXCEPTION 'Juego Limpio: Puntuación de Víborita excede el umbral verificado (% pts).', NEW.score;
-    ELSIF NEW.game_id = 'flappy' AND NEW.score > 5000 THEN
+    ELSIF NEW.game_id = 'flappy' AND NEW.score > 12000 THEN
         RAISE EXCEPTION 'Juego Limpio: Puntuación de Flappy excede el umbral verificado (% pts).', NEW.score;
-    ELSIF NEW.game_id = 'reflejos' AND NEW.score > 20000 THEN
+    ELSIF NEW.game_id = 'reflejos' AND NEW.score > 45000 THEN
         RAISE EXCEPTION 'Juego Limpio: Puntuación de Reflejos excede el umbral verificado (% pts).', NEW.score;
     ELSIF NEW.game_id = 'memorama' AND NEW.score < 10 THEN
         -- 10 pares requieren mínimo 10 intentos si se adivinara perfecto con suerte cósmica

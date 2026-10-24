@@ -67,36 +67,36 @@
     ],
 
     DIFFICULTIES: [
-      { id: 'facil', label: '🟢 Fácil', short: '🟢' },
-      { id: 'medio', label: '🟡 Medio', short: '🟡' },
-      { id: 'dificil', label: '🔴 Difícil', short: '🔴' }
+      { id: 'facil', label: '🟢 Fácil · 1x', short: '🟢 1x' },
+      { id: 'medio', label: '🟡 Medio · 1.5x', short: '🟡 1.5x' },
+      { id: 'dificil', label: '🔴 Difícil · 2.5x', short: '🔴 2.5x' }
     ],
 
-    /** Parámetros por juego y dificultad (velocidad, aperturas, tiempos). */
+    /** Parámetros por juego y dificultad (velocidad, aperturas, tiempos y multiplicadores de recompensa). */
     TUNING: {
       snake: {
-        // pasos/seg iniciales, aceleración por segmento, ¿las paredes atraviesan?, obstáculos
-        facil: { speed: 6.5, accel: 0.10, wrap: true, initObs: 1, maxObs: 3, obsStep: 800 },
-        medio: { speed: 9, accel: 0.14, wrap: false, initObs: 2, maxObs: 5, obsStep: 600 },
-        dificil: { speed: 12, accel: 0.20, wrap: false, initObs: 4, maxObs: 7, obsStep: 500 }
+        // pasos/seg iniciales, aceleración por segmento, ¿las paredes atraviesan?, obstáculos, multiplicador de puntos
+        facil:   { speed: 6.5,  accel: 0.10, wrap: true,  initObs: 1, maxObs: 3, obsStep: 800, scoreMult: 1.0 },
+        medio:   { speed: 10.0, accel: 0.16, wrap: false, initObs: 3, maxObs: 6, obsStep: 500, scoreMult: 1.5 },
+        dificil: { speed: 13.5, accel: 0.22, wrap: false, initObs: 5, maxObs: 9, obsStep: 380, scoreMult: 2.5 }
       },
       flappy: {
-        // apertura entre columnas, velocidad horizontal, separación entre columnas
-        facil: { gap: 215, speed: 135, spacing: 360 },
-        medio: { gap: 178, speed: 175, spacing: 340 },
-        dificil: { gap: 150, speed: 215, spacing: 320 }
+        // apertura entre columnas, velocidad horizontal, separación entre columnas, puntos por columna, bonus dije
+        facil:   { gap: 215, speed: 135, spacing: 360, ptsPerCol: 1, charmBonus: 2,  scoreMult: 1.0 },
+        medio:   { gap: 168, speed: 185, spacing: 325, ptsPerCol: 2, charmBonus: 6,  scoreMult: 1.5 },
+        dificil: { gap: 140, speed: 230, spacing: 295, ptsPerCol: 4, charmBonus: 12, scoreMult: 2.5 }
       },
       memorama: {
-        // peek: segundos que se muestran las cartas al inicio; flipBack: segundos antes de voltear un fallo
-        facil: { peek: 3.5, flipBack: 1.1 },
-        medio: { peek: 1.8, flipBack: 0.8 },
-        dificil: { peek: 0, flipBack: 0.55 }
+        // peek: segundos que se muestran las cartas al inicio; flipBack: segundos antes de voltear un fallo; streakBonus
+        facil:   { peek: 3.5, flipBack: 1.10, streakBonus: 0, scoreMult: 1.0 },
+        medio:   { peek: 1.4, flipBack: 0.70, streakBonus: 1, scoreMult: 1.5 },
+        dificil: { peek: 0.0, flipBack: 0.45, streakBonus: 1, scoreMult: 2.5 }
       },
       reflejos: {
-        // vida del orbe (s), orbes simultáneos máx., intervalo de aparición (s), prob. de frasco con humo
-        facil: { life: 2.5, maxActive: 2, interval: 0.95, hazard: 0.15 },
-        medio: { life: 1.9, maxActive: 3, interval: 0.75, hazard: 0.25 },
-        dificil: { life: 1.4, maxActive: 4, interval: 0.6, hazard: 0.33 }
+        // vida del orbe (s), orbes simultáneos máx., intervalo de aparición (s), prob. de frasco con humo, multiplicador
+        facil:   { life: 2.5, maxActive: 2, interval: 0.95, hazard: 0.15, scoreMult: 1.0 },
+        medio:   { life: 1.6, maxActive: 4, interval: 0.65, hazard: 0.28, scoreMult: 1.6 },
+        dificil: { life: 1.2, maxActive: 5, interval: 0.48, hazard: 0.38, scoreMult: 2.5 }
       }
     },
 
